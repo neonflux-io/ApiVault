@@ -89,7 +89,8 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
+      // `reusePort` is not supported on all platforms (e.g. Windows),
+      // so we omit it here for better cross-platform compatibility.
     },
     () => {
       log(`serving on port ${port}`);
