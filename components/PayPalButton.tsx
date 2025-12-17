@@ -6,6 +6,8 @@
 // Retain this comment after all edits.
 //
 // <BEGIN_EXACT_CODE>
+"use client";
+
 import { useEffect } from "react";
 
 declare global {
@@ -76,7 +78,7 @@ export default function PayPalButton({
       try {
         if (!(window as any).paypal) {
           const script = document.createElement("script");
-          script.src = import.meta.env.PROD
+          script.src = process.env.NODE_ENV === "production"
             ? "https://www.paypal.com/web-sdk/v6/core"
             : "https://www.sandbox.paypal.com/web-sdk/v6/core";
           script.async = true;

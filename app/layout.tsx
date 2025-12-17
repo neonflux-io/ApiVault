@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryClientProviderWrapper } from "./providers";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -8,12 +7,6 @@ import { CartProvider } from "@/lib/cart-context";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
-
-const inter = Inter({ 
-  subsets: ["latin"],
-  display: "swap",
-  fallback: ["system-ui", "arial"],
-});
 
 export const metadata: Metadata = {
   title: "APIKeys.io - Powerful APIs for Developers",
@@ -27,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className="font-sans">
         <QueryClientProviderWrapper>
           <ThemeProvider defaultTheme="light" storageKey="apikeys-theme">
             <TooltipProvider>
