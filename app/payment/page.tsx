@@ -95,8 +95,8 @@ export default function Payment() {
 
   const showMaintenanceToast = (methodLabel: string) => {
     toast({
-      title: "Maintenance in progress",
-      description: `${methodLabel} payments are temporarily unavailable. Please use cryptocurrency to complete your purchase.`,
+      title: "Site Under Renovation",
+      description: `The site is currently undergoing renovations and ${methodLabel} payments are not working. Please use cryptocurrency to complete your purchase.`,
       variant: "destructive",
     });
   };
@@ -823,7 +823,7 @@ export default function Payment() {
                       <div className="flex items-center gap-3 rounded-md bg-destructive/10 border border-destructive/40 p-3">
                         <AlertTriangle className="h-4 w-4 text-destructive" />
                         <p className="text-sm text-destructive">
-                          PayPal payments are currently under scheduled maintenance. Please use cryptocurrency to complete your purchase.
+                          The site is currently undergoing renovations and PayPal payments are not working. Please use cryptocurrency to complete your purchase.
                         </p>
                       </div>
                     </div>
@@ -873,7 +873,7 @@ export default function Payment() {
                       <div className="flex items-center gap-3 rounded-md bg-destructive/10 border border-destructive/40 p-3">
                         <AlertTriangle className="h-4 w-4 text-destructive" />
                         <p className="text-sm text-destructive">
-                          Bank transfers are currently under scheduled maintenance. Please use cryptocurrency to complete your purchase.
+                          The site is currently undergoing renovations and bank account payments are not working. Please use cryptocurrency to complete your purchase.
                         </p>
                       </div>
                     </div>
