@@ -18,7 +18,7 @@ import {
 import { SiPaypal, SiSolana, SiBitcoin, SiEthereum, SiBinance, SiTether } from "react-icons/si";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/products";
-import { checkoutFormSchema, type CheckoutFormData } from "@shared/schema";
+import { checkoutFormSchema, type CheckoutFormData, type CartItem } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -60,22 +60,27 @@ export default function Payment() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
-      // Calculate total quantity from all cart items
-      const quantity = items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
-      
+      // Create one order per cart item (product)
+      // Each order will have API keys based on that item's quantity
       console.log(`[Payment] Cart items:`, items);
-      console.log(`[Payment] Calculated quantity: ${quantity}`);
-      console.log(`[Payment] Sending order with quantity: ${quantity}`);
+      console.log(`[Payment] Creating ${items.length} order(s) - one per product`);
       
-      const response = await apiRequest("POST", "/api/orders", {
-        productId: items[0]?.product.id,
+      // Create orders array - one order per cart item
+      const ordersData = items.map((item: CartItem) => ({
+        productId: item.product.id,
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         paymentMethod: data.paymentMethod,
-        amount: total,
+        amount: item.product.price * item.quantity, // Price for this specific item
         currency: "USD",
-        quantity: quantity,
-      });
+        quantity: item.quantity, // Quantity for this specific product
+        transactionLink: data.transactionLink,
+      }));
+      
+      console.log(`[Payment] Sending ${ordersData.length} order(s):`, ordersData);
+      
+      // Send array of orders to create multiple orders
+      const response = await apiRequest("POST", "/api/orders", ordersData);
       return response.json();
     },
     onSuccess: (data) => {

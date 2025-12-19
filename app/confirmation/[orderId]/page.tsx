@@ -39,19 +39,48 @@ export default function Confirmation() {
   const params = useParams();
   const orderId = params.orderId as string;
   const { toast } = useToast();
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<{ orderId: string; keyIndex: number } | null>(null);
 
-  const { data: order, isLoading, error } = useQuery<Order>({
+  // Fetch the initial order to get customer email
+  const { data: order, isLoading: orderLoading, error: orderError } = useQuery<Order>({
     queryKey: ["/api/orders", orderId],
   });
 
-  const apiKeys = order?.apiKey ? parseApiKeys(order.apiKey) : [];
-  const product = order?.productId ? getProductById(order.productId) : undefined;
-  const productName = product?.name || "API";
+  // Fetch all orders for this customer's email to show all purchased products
+  const { data: allOrders, isLoading: allOrdersLoading } = useQuery<Order[]>({
+    queryKey: ["/api/orders/email", order?.customerEmail],
+    queryFn: async () => {
+      if (!order?.customerEmail) return [];
+      const response = await fetch(`/api/orders/email?email=${encodeURIComponent(order.customerEmail)}`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!order?.customerEmail,
+  });
 
-  const handleCopyApiKey = async (key: string, index: number) => {
+  const isLoading = orderLoading || allOrdersLoading;
+  const error = orderError;
+  
+  // Group orders by product and collect all API keys
+  const ordersByProduct = allOrders?.reduce((acc, order) => {
+    const product = getProductById(order.productId);
+    const productName = product?.name || "API";
+    const apiKeys = parseApiKeys(order.apiKey);
+    
+    if (!acc[productName]) {
+      acc[productName] = [];
+    }
+    acc[productName].push({ order, apiKeys });
+    return acc;
+  }, {} as Record<string, Array<{ order: Order; apiKeys: string[] }>>) || {};
+
+  const totalApiKeys = allOrders?.reduce((sum, order) => {
+    return sum + parseApiKeys(order.apiKey).length;
+  }, 0) || 0;
+
+  const handleCopyApiKey = async (key: string, orderId: string, keyIndex: number) => {
     await navigator.clipboard.writeText(key);
-    setCopiedIndex(index);
+    setCopiedIndex({ orderId, keyIndex });
     toast({
       title: "Copied",
       description: "API key copied to clipboard",
@@ -152,33 +181,113 @@ export default function Confirmation() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Amount</p>
-                <p className="font-medium">{formatPrice(order.amount)}</p>
+                <p className="font-medium">
+                  {allOrders && allOrders.length > 1
+                    ? formatPrice(allOrders.reduce((sum, o) => sum + o.amount, 0))
+                    : formatPrice(order.amount)}
+                </p>
               </div>
             </div>
 
-            {apiKeys.length > 0 && (
+            {Object.keys(ordersByProduct).length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    <Key className="h-5 w-5 text-primary" />
+                    <p className="font-semibold">
+                      {totalApiKeys === 1 
+                        ? "Your API Key" 
+                        : `Your API Keys (${totalApiKeys})`}
+                    </p>
+                  </div>
+                  
+                  {/* Display API keys grouped by product */}
+                  {Object.entries(ordersByProduct).map(([productName, orderGroups]) => {
+                    // Flatten all API keys for this product
+                    const allKeysForProduct: Array<{ key: string; orderId: string; keyIndex: number }> = [];
+                    orderGroups.forEach(({ order, apiKeys }) => {
+                      apiKeys.forEach((key, idx) => {
+                        allKeysForProduct.push({ key, orderId: order.id, keyIndex: idx });
+                      });
+                    });
+                    
+                    return (
+                      <div key={productName} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm">{productName}</p>
+                          <Badge variant="outline" className="text-xs">
+                            {allKeysForProduct.length} {allKeysForProduct.length === 1 ? 'key' : 'keys'}
+                          </Badge>
+                        </div>
+                        <div className="space-y-2 pl-4 border-l-2 border-muted">
+                          {allKeysForProduct.map(({ key, orderId, keyIndex }, globalIndex) => (
+                            <div key={`${orderId}-${keyIndex}`} className="space-y-2">
+                              {allKeysForProduct.length > 1 && (
+                                <p className="text-xs text-muted-foreground font-medium">
+                                  {productName} API Key #{globalIndex + 1}
+                                </p>
+                              )}
+                              {allKeysForProduct.length === 1 && (
+                                <p className="text-xs text-muted-foreground font-medium">
+                                  {productName} API Key
+                                </p>
+                              )}
+                              <div className="flex gap-2">
+                                <div className="flex-1 rounded-md bg-muted p-3 font-mono text-sm overflow-x-auto">
+                                  {key}
+                                </div>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => handleCopyApiKey(key, orderId, keyIndex)}
+                                  data-testid={`button-copy-api-key-${orderId}-${keyIndex}`}
+                                >
+                                  {copiedIndex?.orderId === orderId && copiedIndex?.keyIndex === keyIndex ? (
+                                    <Check className="h-4 w-4" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  <p className="text-xs text-muted-foreground">
+                    Keep these keys secure. Do not share them publicly.
+                  </p>
+                </div>
+              </>
+            )}
+            
+            {/* Fallback: Show single order API keys if allOrders hasn't loaded yet */}
+            {Object.keys(ordersByProduct).length === 0 && order?.apiKey && parseApiKeys(order.apiKey).length > 0 && (
               <>
                 <Separator />
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <Key className="h-5 w-5 text-primary" />
                     <p className="font-semibold">
-                      {apiKeys.length === 1 
-                        ? `Your ${productName} API Key` 
-                        : `Your ${productName} API Keys (${apiKeys.length})`}
+                      {parseApiKeys(order.apiKey).length === 1 
+                        ? `Your ${getProductById(order.productId)?.name || "API"} API Key` 
+                        : `Your ${getProductById(order.productId)?.name || "API"} API Keys (${parseApiKeys(order.apiKey).length})`}
                     </p>
                   </div>
                   <div className="space-y-3">
-                    {apiKeys.map((key, index) => (
+                    {parseApiKeys(order.apiKey).map((key, index) => (
                       <div key={index} className="space-y-2">
-                        {apiKeys.length > 1 && (
+                        {parseApiKeys(order.apiKey).length > 1 && (
                           <p className="text-xs text-muted-foreground font-medium">
-                            {productName} API Key #{index + 1}
+                            {getProductById(order.productId)?.name || "API"} API Key #{index + 1}
                           </p>
                         )}
-                        {apiKeys.length === 1 && (
+                        {parseApiKeys(order.apiKey).length === 1 && (
                           <p className="text-xs text-muted-foreground font-medium">
-                            {productName} API Key
+                            {getProductById(order.productId)?.name || "API"} API Key
                           </p>
                         )}
                         <div className="flex gap-2">
@@ -188,10 +297,10 @@ export default function Confirmation() {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleCopyApiKey(key, index)}
+                            onClick={() => handleCopyApiKey(key, order.id, index)}
                             data-testid={`button-copy-api-key-${index}`}
                           >
-                            {copiedIndex === index ? (
+                            {copiedIndex?.orderId === order.id && copiedIndex?.keyIndex === index ? (
                               <Check className="h-4 w-4" />
                             ) : (
                               <Copy className="h-4 w-4" />
