@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { formatPrice } from "@/lib/products";
+import { formatPrice, getProductById } from "@/lib/products";
 import type { Order } from "@shared/schema";
 
 // Helper function to parse API keys (handles both single string and JSON array)
@@ -46,6 +46,8 @@ export default function Confirmation() {
   });
 
   const apiKeys = order?.apiKey ? parseApiKeys(order.apiKey) : [];
+  const product = order?.productId ? getProductById(order.productId) : undefined;
+  const productName = product?.name || "API";
 
   const handleCopyApiKey = async (key: string, index: number) => {
     await navigator.clipboard.writeText(key);
@@ -161,7 +163,9 @@ export default function Confirmation() {
                   <div className="flex items-center gap-2">
                     <Key className="h-5 w-5 text-primary" />
                     <p className="font-semibold">
-                      {apiKeys.length === 1 ? "Your API Key" : `Your API Keys (${apiKeys.length})`}
+                      {apiKeys.length === 1 
+                        ? `Your ${productName} API Key` 
+                        : `Your ${productName} API Keys (${apiKeys.length})`}
                     </p>
                   </div>
                   <div className="space-y-3">
@@ -169,7 +173,12 @@ export default function Confirmation() {
                       <div key={index} className="space-y-2">
                         {apiKeys.length > 1 && (
                           <p className="text-xs text-muted-foreground font-medium">
-                            API Key #{index + 1}
+                            {productName} API Key #{index + 1}
+                          </p>
+                        )}
+                        {apiKeys.length === 1 && (
+                          <p className="text-xs text-muted-foreground font-medium">
+                            {productName} API Key
                           </p>
                         )}
                         <div className="flex gap-2">
