@@ -272,7 +272,10 @@ export default function Payment() {
                       </div>
                     </CardHeader>
                     {selectedPayment === "solana" && (
-                      <CardContent className="pt-0">
+                      <CardContent 
+                        className="pt-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Separator className="mb-4" />
                         {!showTransactionInput ? (
                           <div className="space-y-4">
@@ -310,7 +313,11 @@ export default function Payment() {
                             <Button
                               type="button"
                               className="w-full"
-                              onClick={() => setShowTransactionInput(true)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setShowTransactionInput(true);
+                              }}
                               disabled={createOrderMutation.isPending}
                               data-testid="button-confirm-solana"
                             >
@@ -341,7 +348,10 @@ export default function Payment() {
                             <Button
                               type="button"
                               className="w-full"
-                              onClick={handleSubmitSolana}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSubmitSolana();
+                              }}
                               disabled={createOrderMutation.isPending || !transactionLink.trim()}
                             >
                               {createOrderMutation.isPending ? (
@@ -397,7 +407,10 @@ export default function Payment() {
                       </div>
                     </CardHeader>
                     {selectedPayment === "bitcoin" && (
-                      <CardContent className="pt-0">
+                      <CardContent 
+                        className="pt-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Separator className="mb-4" />
                         {!showTransactionInput ? (
                         <div className="space-y-4">
@@ -421,7 +434,11 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => setShowTransactionInput(true)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setShowTransactionInput(true);
+                            }}
                             disabled={createOrderMutation.isPending}
                           >
                             {createOrderMutation.isPending ? (
@@ -451,7 +468,10 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => handleSubmitCrypto("bitcoin")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSubmitCrypto("bitcoin");
+                            }}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
                           >
                             {createOrderMutation.isPending ? (
@@ -506,7 +526,10 @@ export default function Payment() {
                       </div>
                     </CardHeader>
                     {selectedPayment === "ethereum" && (
-                      <CardContent className="pt-0">
+                      <CardContent 
+                        className="pt-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Separator className="mb-4" />
                         {!showTransactionInput ? (
                         <div className="space-y-4">
@@ -530,7 +553,11 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => setShowTransactionInput(true)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setShowTransactionInput(true);
+                            }}
                             disabled={createOrderMutation.isPending}
                           >
                             {createOrderMutation.isPending ? (
@@ -560,7 +587,10 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => handleSubmitCrypto("ethereum")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSubmitCrypto("ethereum");
+                            }}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
                           >
                             {createOrderMutation.isPending ? (
@@ -616,7 +646,10 @@ export default function Payment() {
                       </div>
                     </CardHeader>
                     {selectedPayment === "bnb" && (
-                      <CardContent className="pt-0">
+                      <CardContent 
+                        className="pt-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Separator className="mb-4" />
                         {!showTransactionInput ? (
                         <div className="space-y-4">
@@ -640,7 +673,11 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => setShowTransactionInput(true)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setShowTransactionInput(true);
+                            }}
                             disabled={createOrderMutation.isPending}
                           >
                             {createOrderMutation.isPending ? (
@@ -670,7 +707,10 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => handleSubmitCrypto("bnb")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSubmitCrypto("bnb");
+                            }}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
                           >
                             {createOrderMutation.isPending ? (
@@ -726,7 +766,10 @@ export default function Payment() {
                       </div>
                     </CardHeader>
                     {selectedPayment === "bep20" && (
-                      <CardContent className="pt-0">
+                      <CardContent 
+                        className="pt-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Separator className="mb-4" />
                         {!showTransactionInput ? (
                         <div className="space-y-4">
@@ -750,7 +793,11 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => setShowTransactionInput(true)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setShowTransactionInput(true);
+                            }}
                             disabled={createOrderMutation.isPending}
                           >
                             {createOrderMutation.isPending ? (
@@ -780,7 +827,10 @@ export default function Payment() {
                           <Button
                             type="button"
                             className="w-full"
-                            onClick={() => handleSubmitCrypto("bep20")}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSubmitCrypto("bep20");
+                            }}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
                           >
                             {createOrderMutation.isPending ? (
