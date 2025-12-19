@@ -308,6 +308,7 @@ export default function Payment() {
                               </div>
                             </div>
                             <Button
+                              type="button"
                               className="w-full"
                               onClick={() => setShowTransactionInput(true)}
                               disabled={createOrderMutation.isPending}
@@ -338,6 +339,7 @@ export default function Payment() {
                               />
                             </div>
                             <Button
+                              type="button"
                               className="w-full"
                               onClick={handleSubmitSolana}
                               disabled={createOrderMutation.isPending || !transactionLink.trim()}
@@ -417,6 +419,7 @@ export default function Payment() {
                             </div>
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => setShowTransactionInput(true)}
                             disabled={createOrderMutation.isPending}
@@ -446,6 +449,7 @@ export default function Payment() {
                             />
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => handleSubmitCrypto("bitcoin")}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
@@ -524,6 +528,7 @@ export default function Payment() {
                             </div>
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => setShowTransactionInput(true)}
                             disabled={createOrderMutation.isPending}
@@ -553,6 +558,7 @@ export default function Payment() {
                             />
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => handleSubmitCrypto("ethereum")}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
@@ -632,6 +638,7 @@ export default function Payment() {
                             </div>
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => setShowTransactionInput(true)}
                             disabled={createOrderMutation.isPending}
@@ -661,6 +668,7 @@ export default function Payment() {
                             />
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => handleSubmitCrypto("bnb")}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
@@ -740,6 +748,7 @@ export default function Payment() {
                             </div>
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => setShowTransactionInput(true)}
                             disabled={createOrderMutation.isPending}
@@ -769,6 +778,7 @@ export default function Payment() {
                             />
                           </div>
                           <Button
+                            type="button"
                             className="w-full"
                             onClick={() => handleSubmitCrypto("bep20")}
                             disabled={createOrderMutation.isPending || !transactionLink.trim()}
