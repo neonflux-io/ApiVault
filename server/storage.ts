@@ -326,9 +326,19 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const now = new Date();
     
-    // Generate API key immediately for demo purposes
+    // Generate multiple API keys based on quantity purchased
     // In production, this would happen after payment confirmation
-    const apiKey = generateApiKey();
+    const quantity = (insertOrder as any).quantity || 1;
+    const apiKeys: string[] = [];
+    for (let i = 0; i < quantity; i++) {
+      apiKeys.push(generateApiKey());
+    }
+    
+    // Store API keys as JSON array string for backward compatibility
+    // If only one key, store as single string; if multiple, store as JSON array
+    const apiKey = quantity === 1 
+      ? apiKeys[0] 
+      : JSON.stringify(apiKeys);
     
     const order: Order = {
       id,
@@ -340,7 +350,7 @@ export class MemStorage implements IStorage {
       transactionLink: insertOrder.transactionLink || null,
       amount: insertOrder.amount,
       currency: insertOrder.currency || "USD",
-      apiKey: insertOrder.paymentMethod === "paypal" ? apiKey : apiKey, // Always generate for demo
+      apiKey: apiKey,
       createdAt: now,
     };
     

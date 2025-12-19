@@ -60,6 +60,9 @@ export default function Payment() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
+      // Calculate total quantity from all cart items
+      const quantity = items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
+      
       const response = await apiRequest("POST", "/api/orders", {
         productId: items[0]?.product.id,
         customerName: data.customerName,
@@ -67,6 +70,7 @@ export default function Payment() {
         paymentMethod: data.paymentMethod,
         amount: total,
         currency: "USD",
+        quantity: quantity,
       });
       return response.json();
     },

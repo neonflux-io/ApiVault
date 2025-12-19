@@ -17,26 +17,44 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/products";
 import type { Order } from "@shared/schema";
 
+// Helper function to parse API keys (handles both single string and JSON array)
+function parseApiKeys(apiKey: string | null | undefined): string[] {
+  if (!apiKey) return [];
+  
+  try {
+    // Try to parse as JSON array
+    const parsed = JSON.parse(apiKey);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch {
+    // If not JSON, treat as single string
+  }
+  
+  // Return as single-item array for consistent handling
+  return [apiKey];
+}
+
 export default function Confirmation() {
   const params = useParams();
   const orderId = params.orderId as string;
   const { toast } = useToast();
-  const [copied, setCopied] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const { data: order, isLoading, error } = useQuery<Order>({
     queryKey: ["/api/orders", orderId],
   });
 
-  const handleCopyApiKey = async () => {
-    if (order?.apiKey) {
-      await navigator.clipboard.writeText(order.apiKey);
-      setCopied(true);
-      toast({
-        title: "Copied",
-        description: "API key copied to clipboard",
-      });
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const apiKeys = order?.apiKey ? parseApiKeys(order.apiKey) : [];
+
+  const handleCopyApiKey = async (key: string, index: number) => {
+    await navigator.clipboard.writeText(key);
+    setCopiedIndex(index);
+    toast({
+      title: "Copied",
+      description: "API key copied to clipboard",
+    });
+    setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   if (isLoading) {
@@ -136,33 +154,46 @@ export default function Confirmation() {
               </div>
             </div>
 
-            {order.apiKey && (
+            {apiKeys.length > 0 && (
               <>
                 <Separator />
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <Key className="h-5 w-5 text-primary" />
-                    <p className="font-semibold">Your API Key</p>
+                    <p className="font-semibold">
+                      {apiKeys.length === 1 ? "Your API Key" : `Your API Keys (${apiKeys.length})`}
+                    </p>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1 rounded-md bg-muted p-3 font-mono text-sm overflow-x-auto">
-                      {order.apiKey}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleCopyApiKey}
-                      data-testid="button-copy-api-key"
-                    >
-                      {copied ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                  <div className="space-y-3">
+                    {apiKeys.map((key, index) => (
+                      <div key={index} className="space-y-2">
+                        {apiKeys.length > 1 && (
+                          <p className="text-xs text-muted-foreground font-medium">
+                            API Key #{index + 1}
+                          </p>
+                        )}
+                        <div className="flex gap-2">
+                          <div className="flex-1 rounded-md bg-muted p-3 font-mono text-sm overflow-x-auto">
+                            {key}
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleCopyApiKey(key, index)}
+                            data-testid={`button-copy-api-key-${index}`}
+                          >
+                            {copiedIndex === index ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Keep this key secure. Do not share it publicly.
+                    Keep these keys secure. Do not share them publicly.
                   </p>
                 </div>
               </>

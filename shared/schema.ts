@@ -41,6 +41,8 @@ export const insertOrderSchema = createInsertSchema(orders).pick({
   transactionLink: true,
   amount: true,
   currency: true,
+}).extend({
+  quantity: z.number().int().positive().default(1),
 });
 
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
