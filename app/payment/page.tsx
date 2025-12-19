@@ -63,6 +63,10 @@ export default function Payment() {
       // Calculate total quantity from all cart items
       const quantity = items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
       
+      console.log(`[Payment] Cart items:`, items);
+      console.log(`[Payment] Calculated quantity: ${quantity}`);
+      console.log(`[Payment] Sending order with quantity: ${quantity}`);
+      
       const response = await apiRequest("POST", "/api/orders", {
         productId: items[0]?.product.id,
         customerName: data.customerName,

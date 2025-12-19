@@ -328,17 +328,29 @@ export class MemStorage implements IStorage {
     
     // Generate multiple API keys based on quantity purchased
     // In production, this would happen after payment confirmation
-    const quantity = (insertOrder as any).quantity || 1;
+    // The quantity field is included in the InsertOrder type from the extended schema
+    // Access it safely since TypeScript may not recognize the extended field
+    const orderWithQuantity = insertOrder as typeof insertOrder & { quantity?: number };
+    const quantity = orderWithQuantity.quantity && orderWithQuantity.quantity > 0 
+      ? orderWithQuantity.quantity 
+      : 1;
+    
+    console.log(`[createOrder] Quantity received: ${quantity}, generating ${quantity} API key(s)`);
+    
     const apiKeys: string[] = [];
     for (let i = 0; i < quantity; i++) {
       apiKeys.push(generateApiKey());
     }
+    
+    console.log(`[createOrder] Generated ${apiKeys.length} API key(s)`);
     
     // Store API keys as JSON array string for backward compatibility
     // If only one key, store as single string; if multiple, store as JSON array
     const apiKey = quantity === 1 
       ? apiKeys[0] 
       : JSON.stringify(apiKeys);
+    
+    console.log(`[createOrder] Storing API key(s) as: ${quantity === 1 ? 'single string' : 'JSON array'}`);
     
     const order: Order = {
       id,
