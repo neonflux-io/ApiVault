@@ -274,89 +274,91 @@ export default function Payment() {
                     {selectedPayment === "solana" && (
                       <CardContent className="pt-0">
                         <Separator className="mb-4" />
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-center p-6 bg-muted rounded-lg">
-                            <div className="text-center space-y-3">
-                              <div className="h-32 w-32 bg-background rounded-lg flex items-center justify-center mx-auto border">
-                                <QrCode className="h-24 w-24 text-muted-foreground/50" />
+                        {!showTransactionInput ? (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-center p-6 bg-muted rounded-lg">
+                              <div className="text-center space-y-3">
+                                <div className="h-32 w-32 bg-background rounded-lg flex items-center justify-center mx-auto border">
+                                  <QrCode className="h-24 w-24 text-muted-foreground/50" />
+                                </div>
+                                <p className="text-xs text-muted-foreground">Scan with your Solana wallet</p>
                               </div>
-                              <p className="text-xs text-muted-foreground">Scan with your Solana wallet</p>
                             </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Wallet Address</Label>
+                              <div className="flex gap-2">
+                                <Input
+                                  value={SOLANA_WALLET_ADDRESS}
+                                  readOnly
+                                  className="font-mono text-xs"
+                                  data-testid="input-solana-address"
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => handleCopyAddress(SOLANA_WALLET_ADDRESS)}
+                                  data-testid="button-copy-address"
+                                >
+                                  {copied ? (
+                                    <Check className="h-4 w-4" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                            <Button
+                              className="w-full"
+                              onClick={() => setShowTransactionInput(true)}
+                              disabled={createOrderMutation.isPending}
+                              data-testid="button-confirm-solana"
+                            >
+                              {createOrderMutation.isPending ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <Wallet className="mr-2 h-4 w-4" />
+                                  I've Sent the Payment
+                                </>
+                              )}
+                            </Button>
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Wallet Address</Label>
-                            <div className="flex gap-2">
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="transaction-link">Transaction Link</Label>
                               <Input
-                                value={SOLANA_WALLET_ADDRESS}
-                                readOnly
-                                className="font-mono text-xs"
-                                data-testid="input-solana-address"
+                                id="transaction-link"
+                                placeholder="Please input transaction link"
+                                value={transactionLink}
+                                onChange={(e) => setTransactionLink(e.target.value)}
                               />
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => handleCopyAddress(SOLANA_WALLET_ADDRESS)}
-                                data-testid="button-copy-address"
-                              >
-                                {copied ? (
-                                  <Check className="h-4 w-4" />
-                                ) : (
-                                  <Copy className="h-4 w-4" />
-                                )}
-                              </Button>
                             </div>
+                            <Button
+                              className="w-full"
+                              onClick={handleSubmitSolana}
+                              disabled={createOrderMutation.isPending || !transactionLink.trim()}
+                            >
+                              {createOrderMutation.isPending ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="mr-2 h-4 w-4" />
+                                  Confirm Transaction
+                                </>
+                              )}
+                            </Button>
                           </div>
-                          <Button
-                            className="w-full"
-                            onClick={() => setShowTransactionInput(true)}
-                            disabled={createOrderMutation.isPending}
-                            data-testid="button-confirm-solana"
-                          >
-                            {createOrderMutation.isPending ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <Wallet className="mr-2 h-4 w-4" />
-                                I've Sent the Payment
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="transaction-link">Transaction Link</Label>
-                            <Input
-                              id="transaction-link"
-                              placeholder="Please input transaction link"
-                              value={transactionLink}
-                              onChange={(e) => setTransactionLink(e.target.value)}
-                            />
-                          </div>
-                          <Button
-                            className="w-full"
-                            onClick={handleSubmitSolana}
-                            disabled={createOrderMutation.isPending || !transactionLink.trim()}
-                          >
-                            {createOrderMutation.isPending ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <Check className="mr-2 h-4 w-4" />
-                                Confirm Transaction
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      )
-                    </CardContent>
-                  )                   } </Card>
+                        )}
+                      </CardContent>
+                    )}
+                  </Card>
 
                   {/* Bitcoin */}
                   <Card
